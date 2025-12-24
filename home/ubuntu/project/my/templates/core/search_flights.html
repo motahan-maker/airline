@@ -4,53 +4,79 @@
 
 {% block content %}
 <div class="container">
-    <h1>Search Flights</h1>
-    <form method="GET" action="{% url 'search_flights' %}">
-        <div class="form-group">
-            <label for="departure">Departure Airport (IATA Code):</label>
-            <input type="text" class="form-control" id="departure" name="departure" required>
-        </div>
-        <div class="form-group">
-            <label for="arrival">Arrival Airport (IATA Code):</label>
-            <input type="text" class="form-control" id="arrival" name="arrival" required>
-        </div>
-        <div class="form-group">
-            <label for="date">Departure Date:</label>
-            <input type="date" class="form-control" id="date" name="date" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Search</button>
-    </form>
+    <div class="form-container">
+        <h1 class="text-center mb-4">Search Flights</h1>
+        <form method="GET" action="{% url 'search_flights' %}">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="departure" class="form-label">Departure Airport (IATA Code)</label>
+                    <input type="text" class="form-control" id="departure" name="departure" placeholder="e.g., JFK" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="arrival" class="form-label">Arrival Airport (IATA Code)</label>
+                    <input type="text" class="form-control" id="arrival" name="arrival" placeholder="e.g., LAX" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="date" class="form-label">Departure Date</label>
+                    <input type="date" class="form-control" id="date" name="date" required>
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Search Flights</button>
+            </div>
+        </form>
+    </div>
 
     {% if flights %}
-        <h2>Available Flights</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Flight Number</th>
-                    <th>Departure</th>
-                    <th>Arrival</th>
-                    <th>Departure Time</th>
-                    <th>Arrival Time</th>
-                    <th>Price</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="mt-5">
+            <h2 class="text-center mb-4"><i class="fas fa-plane-departure"></i> Available Flights</h2>
+            <div class="row">
                 {% for flight in flights %}
-                <tr>
-                    <td>{{ flight.flight_number }}</td>
-                    <td>{{ flight.departure_airport.iata_code }} ({{ flight.departure_airport.city }})</td>
-                    <td>{{ flight.arrival_airport.iata_code }} ({{ flight.arrival_airport.city }})</td>
-                    <td>{{ flight.departure_time }}</td>
-                    <td>{{ flight.arrival_time }}</td>
-                    <td>${{ flight.price }}</td>
-                    <td><a href="{% url 'booking:book_flight' flight.id %}" class="btn btn-success">Book</a></td>
-                </tr>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card flight-card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0"><i class="fas fa-plane"></i> {{ flight.flight_number }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-6 text-center">
+                                    <div class="flight-info">
+                                        <i class="fas fa-map-marker-alt text-success"></i>
+                                        <h6>{{ flight.departure_airport.iata_code }}</h6>
+                                        <small class="text-muted">{{ flight.departure_airport.city }}</small>
+                                        <p class="mb-0">{{ flight.departure_time|date:"H:i" }}</p>
+                                        <small>{{ flight.departure_time|date:"M d" }}</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <div class="flight-info">
+                                        <i class="fas fa-map-marker-alt text-danger"></i>
+                                        <h6>{{ flight.arrival_airport.iata_code }}</h6>
+                                        <small class="text-muted">{{ flight.arrival_airport.city }}</small>
+                                        <p class="mb-0">{{ flight.arrival_time|date:"H:i" }}</p>
+                                        <small>{{ flight.arrival_time|date:"M d" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flight-arrow text-center mb-3">
+                                <i class="fas fa-arrow-right fa-2x text-primary"></i>
+                            </div>
+                            <div class="text-center">
+                                <h4 class="text-success mb-3">${{ flight.price }}</h4>
+                                <a href="{% url 'booking:book_flight' flight.id %}" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-shopping-cart"></i> Book Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
-            </tbody>
-        </table>
-    {% elif request.GET %}
-        <p>No flights found for your search criteria.</p>
+            </div>
+        </div>
+    {% elif searched %}
+        <div class="alert alert-warning mt-4 text-center" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> No flights found for your search criteria. Please try different dates or airports.
+        </div>
     {% endif %}
 </div>
 {% endblock %}

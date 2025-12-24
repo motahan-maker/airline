@@ -4,6 +4,7 @@ from django.conf import settings
 from booking.models import Booking
 from .models import Payment
 import stripe
+from django.contrib import messages
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -13,40 +14,46 @@ def process_payment_view(request, booking_id):
     amount = booking.flight.price * booking.number_of_passengers
 
     if request.method == 'POST':
-        # In a real application, you would handle the Stripe token/source here
-        # For this example, we'll simulate a successful payment
         try:
-            # Simulate a Stripe charge
-            charge = stripe.Charge.create(
-                amount=int(amount * 100), # amount in cents
+            # Create a PaymentIntent with the order amount and currency
+            intent = stripe.PaymentIntent.create(
+                amount=int(amount * 100),  # amount in cents
                 currency='usd',
-                source=request.POST.get('stripeToken', 'tok_visa'), # Use a test token
-                description=f"Charge for booking {booking.id}",
+                metadata={'booking_id': booking.id},
             )
 
-            payment, created = Payment.objects.get_or_create(booking=booking, defaults={'amount': amount})
-            payment.status = 'Completed'
-            payment.stripe_charge_id = charge.id
-            payment.save()
-            booking.status = 'Paid'
-            booking.save()
+            payment, created = Payment.objects.get_or_create(
+                booking=booking,
+                defaults={'amount': amount, 'stripe_payment_intent_id': intent.id}
+            )
+
             return redirect('payment:success', payment_id=payment.id)
 
-        except stripe.error.CardError as e:
-            # Handle card errors
-            pass
         except Exception as e:
-            # Handle other errors
-            pass
+            messages.error(request, 'Payment processing failed. Please try again.')
+            return redirect('payment:process', booking_id=booking.id)
+
+    # Create PaymentIntent for the frontend
+    try:
+        intent = stripe.PaymentIntent.create(
+            amount=int(amount * 100),
+            currency='usd',
+            metadata={'booking_id': booking.id},
+        )
+        client_secret = intent.client_secret
+    except Exception as e:
+        client_secret = None
 
     context = {
         'booking': booking,
         'amount': amount,
-        'stripe_public_key': settings.STRIPE_PUBLIC_KEY
+        'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
+        'client_secret': client_secret
     }
     return render(request, 'payment/process_payment.html', context)
 
 @login_required
 def payment_success_view(request, payment_id):
     payment = get_object_or_404(Payment, pk=payment_id, booking__user=request.user)
+    messages.success(request, f'Payment of ${payment.amount} was successful! Your booking is confirmed.')
     return render(request, 'payment/payment_success.html', {'payment': payment})

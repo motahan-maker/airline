@@ -4,20 +4,49 @@
 
 {% block content %}
 <div class="container">
-    <h1>Book Flight: {{ flight.flight_number }}</h1>
-    <p>From: {{ flight.departure_airport.city }} ({{ flight.departure_airport.iata_code }})</p>
-    <p>To: {{ flight.arrival_airport.city }} ({{ flight.arrival_airport.iata_code }})</p>
-    <p>Departure: {{ flight.departure_time }}</p>
-    <p>Price: ${{ flight.price }}</p>
-    <p>Available Seats: {{ flight.aircraft.capacity }}</p>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="form-container">
+                <h3 class="text-center mb-4"><i class="fas fa-ticket-alt"></i> Book Your Flight</h3>
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="fas fa-plane"></i> Flight Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Flight Number:</strong> {{ flight.flight_number }}</p>
+                                <p><strong>From:</strong> {{ flight.departure_airport.city }} ({{ flight.departure_airport.iata_code }})</p>
+                                <p><strong>To:</strong> {{ flight.arrival_airport.city }} ({{ flight.arrival_airport.iata_code }})</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Departure:</strong> {{ flight.departure_time|date:"M d, Y H:i" }}</p>
+                                <p><strong>Arrival:</strong> {{ flight.arrival_time|date:"M d, Y H:i" }}</p>
+                                <p><strong>Price per Passenger:</strong> ${{ flight.price }}</p>
+                                <p><strong>Available Seats:</strong> {{ flight.available_seats }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <form method="POST">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="passengers">Number of Passengers:</label>
-            <input type="number" class="form-control" id="passengers" name="passengers" value="1" min="1" max="{{ flight.aircraft.capacity }}" required>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="passengers" class="form-label">Number of Passengers</label>
+                        <input type="number" class="form-control" id="passengers" name="passengers" value="1" min="1" max="{{ flight.available_seats }}" required>
+                        <small class="form-text text-muted">Maximum {{ flight.available_seats }} passengers</small>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-credit-card"></i> Proceed to Payment
+                        </button>
+                        <a href="{% url 'search_flights' %}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-arrow-left"></i> Back to Search
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Confirm Booking</button>
-    </form>
+    </div>
 </div>
 {% endblock %}

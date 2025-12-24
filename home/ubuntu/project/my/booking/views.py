@@ -21,10 +21,10 @@ def book_flight_view(request, flight_id):
                 user=request.user,
                 flight=flight,
                 number_of_passengers=number_of_passengers,
-                status='Confirmed' # Simplified, payment would normally come next
+                status='Pending' # Pending payment
             )
-            # Redirect to payment or booking detail
-            return redirect('booking:detail', booking_id=booking.id)
+            # Redirect to payment
+            return redirect('payment:process', booking_id=booking.id)
         else:
             # Handle not enough seats
             pass

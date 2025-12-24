@@ -3,16 +3,51 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="jumbotron">
-    <h1 class="display-4">Welcome to the Airline Management System</h1>
-    <p class="lead">Your one-stop solution for all your flight booking needs.</p>
-    <hr class="my-4">
-    <p>Use the navigation bar to explore flights, manage your bookings, or log in/register.</p>
-    {% if not user.is_authenticated %}
-    <p class="lead">
-        <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Login</a>
-        <a class="btn btn-secondary btn-lg" href="{% url 'register' %}" role="button">Register</a>
-    </p>
-    {% endif %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="display-4 animate-fade-in"><i class="fas fa-plane"></i> Welcome to AMS</h1>
+        <p class="lead animate-slide-up">Your premier airline management system for seamless flight bookings and travel planning.</p>
+        <hr class="my-4">
+        <p class="animate-slide-up delay-1">Discover destinations, book flights effortlessly, and manage your travel with ease.</p>
+        {% if not user.is_authenticated %}
+        <div class="cta-buttons animate-bounce-in delay-2">
+            <a class="btn btn-primary btn-lg me-3" href="{% url 'login' %}" role="button"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a class="btn btn-success btn-lg" href="{% url 'register' %}" role="button"><i class="fas fa-user-plus"></i> Register</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="feature-card">
+                <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                <h5>Search Flights</h5>
+                <p>Find the best flights to your destination with our advanced search.</p>
+                <a href="{% url 'search_flights' %}" class="btn btn-outline-primary">Search Now</a>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="feature-card">
+                <i class="fas fa-calendar-check fa-3x text-success mb-3"></i>
+                <h5>Manage Bookings</h5>
+                <p>View and manage your flight bookings in one place.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'booking:list' %}" class="btn btn-outline-success">My Bookings</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-success">Login to View</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="feature-card">
+                <i class="fas fa-user-shield fa-3x text-info mb-3"></i>
+                <h5>Secure & Reliable</h5>
+                <p>Enjoy a secure booking experience with our trusted platform.</p>
+                <a href="{% url 'register' %}" class="btn btn-outline-info">Join Now</a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

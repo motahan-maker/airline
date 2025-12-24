@@ -8,32 +8,38 @@ def home_view(request):
 
 def search_flights_view(request):
     flights = []
-    if request.method == 'GET' and 'departure' in request.GET:
+    searched = False
+    if request.method == 'GET':
         departure_iata = request.GET.get('departure')
         arrival_iata = request.GET.get('arrival')
         date_str = request.GET.get('date')
 
-        try:
-            departure_airport = Airport.objects.get(iata_code=departure_iata)
-            arrival_airport = Airport.objects.get(iata_code=arrival_iata)
-            # Use datetime.strptime to parse the date string
-            search_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        if departure_iata or arrival_iata or date_str:
+            searched = True
+            try:
+                query = Flight.objects.all()
+                if departure_iata:
+                    departure_airport = Airport.objects.get(iata_code__iexact=departure_iata)
+                    query = query.filter(departure_airport=departure_airport)
+                if arrival_iata:
+                    arrival_airport = Airport.objects.get(iata_code__iexact=arrival_iata)
+                    query = query.filter(arrival_airport=arrival_airport)
+                if date_str:
+                    search_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    query = query.filter(departure_time__date=search_date)
 
-            flights = Flight.objects.filter(
-                departure_airport=departure_airport,
-                arrival_airport=arrival_airport,
-                # Filter by date part of the datetime field
-                departure_time__date=search_date
-            ).order_by('departure_time')
+                flights = query.order_by('departure_time')
 
-        except Airport.DoesNotExist:
-            # Handle case where airport code is invalid
-            pass
-        except ValueError:
-            # Handle case where date format is invalid
-            pass
+            except Airport.DoesNotExist:
+                flights = []
+            except ValueError:
+                flights = []
+        else:
+            # Show all flights if no search criteria
+            flights = Flight.objects.all().order_by('departure_time')
 
     context = {
-        'flights': flights
+        'flights': flights,
+        'searched': searched
     }
     return render(request, 'core/search_flights.html', context)
