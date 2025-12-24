@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to the Airline Management System</h1>
+    <p class="lead">Your one-stop solution for all your flight booking needs.</p>
+    <hr class="my-4">
+    <p>Use the navigation bar to explore flights, manage your bookings, or log in/register.</p>
+    {% if not user.is_authenticated %}
+    <p class="lead">
+        <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Login</a>
+        <a class="btn btn-secondary btn-lg" href="{% url 'register' %}" role="button">Register</a>
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

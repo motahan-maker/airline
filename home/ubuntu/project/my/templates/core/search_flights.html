@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Flights{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Search Flights</h1>
+    <form method="GET" action="{% url 'search_flights' %}">
+        <div class="form-group">
+            <label for="departure">Departure Airport (IATA Code):</label>
+            <input type="text" class="form-control" id="departure" name="departure" required>
+        </div>
+        <div class="form-group">
+            <label for="arrival">Arrival Airport (IATA Code):</label>
+            <input type="text" class="form-control" id="arrival" name="arrival" required>
+        </div>
+        <div class="form-group">
+            <label for="date">Departure Date:</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    {% if flights %}
+        <h2>Available Flights</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Flight Number</th>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Departure Time</th>
+                    <th>Arrival Time</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for flight in flights %}
+                <tr>
+                    <td>{{ flight.flight_number }}</td>
+                    <td>{{ flight.departure_airport.iata_code }} ({{ flight.departure_airport.city }})</td>
+                    <td>{{ flight.arrival_airport.iata_code }} ({{ flight.arrival_airport.city }})</td>
+                    <td>{{ flight.departure_time }}</td>
+                    <td>{{ flight.arrival_time }}</td>
+                    <td>${{ flight.price }}</td>
+                    <td><a href="{% url 'booking:book_flight' flight.id %}" class="btn btn-success">Book</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif request.GET %}
+        <p>No flights found for your search criteria.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Flight{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Book Flight: {{ flight.flight_number }}</h1>
+    <p>From: {{ flight.departure_airport.city }} ({{ flight.departure_airport.iata_code }})</p>
+    <p>To: {{ flight.arrival_airport.city }} ({{ flight.arrival_airport.iata_code }})</p>
+    <p>Departure: {{ flight.departure_time }}</p>
+    <p>Price: ${{ flight.price }}</p>
+    <p>Available Seats: {{ flight.aircraft.capacity }}</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="passengers">Number of Passengers:</label>
+            <input type="number" class="form-control" id="passengers" name="passengers" value="1" min="1" max="{{ flight.aircraft.capacity }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+    </form>
+</div>
+{% endblock %}

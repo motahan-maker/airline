@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Detail{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Booking Detail ({{ booking.id }})</h1>
+    <p>Flight: {{ booking.flight.flight_number }}</p>
+    <p>Route: {{ booking.flight.departure_airport.iata_code }} to {{ booking.flight.arrival_airport.iata_code }}</p>
+    <p>Departure: {{ booking.flight.departure_time }}</p>
+    <p>Passengers: {{ booking.number_of_passengers }}</p>
+    <p>Status: <strong>{{ booking.status }}</strong></p>
+
+    {% if booking.status == 'Confirmed' %}
+        <form method="POST" action="{% url 'booking:cancel' booking.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Cancel Booking</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}
